@@ -1,0 +1,48 @@
+module HelloApp
+{	
+
+	valuetype UserCounter {
+		public string user_id;
+		public long songid_play_time;
+	};
+
+
+	valuetype TopThreeUsers {
+		public sequence<UserCounter> topThreeUsers;
+
+	};
+
+	valuetype SongCounter{
+		public string song_id;
+		public long songid_play_time;
+	};
+	
+	valuetype TopThreeSongs {
+		public sequence<SongCounter> topThreeSongs;
+	};	
+
+	valuetype SongProfile {
+		public long total_play_count;
+		public TopThreeUsers top_three_users;
+	};
+
+	interface Hello
+	{
+
+	
+	string sayHello(in string message);
+    
+	string sayHelp(in string help);
+
+	long getTimesPlayedByUser(in string user, in string song);
+
+	long getTimesPlayed(in string song);
+
+	TopThreeUsers getTopThreeUsersBySong(in string song);
+
+	TopThreeSongs getTopThreeSongsByUser(in string user);
+	
+	};
+
+	
+};
