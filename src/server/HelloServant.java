@@ -15,6 +15,7 @@ import HelloApp.TopThreeSongsImpl;
 import HelloApp.TopThreeUsers;
 import HelloApp.TopThreeUsersImpl;
 import HelloApp.UserCounterImpl;
+import HelloApp.UserProfileImpl;
 
 
 public class HelloServant extends HelloPOA {
@@ -23,8 +24,9 @@ public class HelloServant extends HelloPOA {
 	//
 	private String maxIndexOfFile1 = "SOMPBQG12AC3DF6169";
 	private HashMap<String, SongProfileImpl> song_cache = new HashMap<String, SongProfileImpl>(); 
-	
-	
+	private HashMap<String, UserProfileImpl> user_cache = new HashMap<String, UserProfileImpl>();
+	private HashMap<String, Integer> user_storage = new HashMap<String,Integer>();
+			
 	public void build_song_cache() {
 		Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
@@ -57,7 +59,43 @@ public class HelloServant extends HelloPOA {
         		if(topList.insertable(played)) {
         			topList.insert(new UserCounterImpl (split[1],played));
         		}
+        		
+        		if(user_storage.containsKey(split[1])) {
+        			user_storage.put(split[1], user_storage.get(split[1]) + played);
+        		}
+        		
+        		else user_storage.put(split[1],played);
+        		
+        		
+        		/*
+        		if(user_cache.containsKey(split[1])) {
+        			UserProfileImpl current = user_cache.get(split[1]);
+        			current.song_list.add(new SongCounterImpl(split[0], played));
+        			current.total_play_count += played;
+        			
+        			TopThreeSongsImpl topSongs = (TopThreeSongsImpl) current.top_three_songs;
+        			
+        			if(topSongs.insertable(played)) {
+        				topSongs.insert(new SongCounterImpl(split[0], played));
+        			}
+        		}
+        		
+        		else {
+        			UserProfileImpl user_profile = new UserProfileImpl(split[1]);
+        			user_profile.total_play_count += played;
+        			TopThreeSongsImpl topSongs = (TopThreeSongsImpl) user_profile.top_three_songs;
+        			SongCounterImpl songCounter = new SongCounterImpl(split[0], played);
+        			topSongs.insert(songCounter);
+        			user_profile.song_list.add(songCounter);
+        			user_cache.put(split[1], user_profile);
+        		} */
+        		
         	}
+        	
+        	fileScanner.close();
+        	
+    		System.out.println("found this i guess : " + user_storage.get("caae83a17bf6d278a6b4c2173df5d86854ad9a68"));
+
         	
 			song_cache.put(cur_song, new SongProfileImpl(count_played, topList));     				
 
@@ -86,8 +124,16 @@ public class HelloServant extends HelloPOA {
         		if(topList.insertable(played)) {
         			topList.insert(new UserCounterImpl (split[1],played));
         		}
+        		
+        		if(user_storage.containsKey(split[1])) {
+        			user_storage.put(split[1], user_storage.get(split[1]) + played);
+        		}
+        		
+        		else user_storage.put(split[1],played);
+        		
         	}
         	
+        	fileScanner.close();
 			song_cache.put(cur_song, new SongProfileImpl(count_played, topList));     
         	
 			
@@ -157,6 +203,7 @@ public class HelloServant extends HelloPOA {
 						return retVal;						
 					}	
 				}
+				fileScanner.close();
 			} catch (NullPointerException e) {
 				System.out.println("yeehaw");
 				return retVal;
@@ -184,6 +231,7 @@ public class HelloServant extends HelloPOA {
 						return retVal;						
 					}	
 				}
+				fileScanner.close();
 			} catch (NullPointerException e) {
 				return retVal;
 			}
