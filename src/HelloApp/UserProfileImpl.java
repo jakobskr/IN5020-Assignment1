@@ -20,6 +20,14 @@ public class UserProfileImpl extends UserProfile implements Comparable<UserProfi
 		song_list = new LinkedList<SongCounterImpl>();
 	}
 	
+	public UserProfileImpl(String id, int val) {
+		user_id = id;
+		super.total_play_count = val;
+		super.top_three_songs = new TopThreeSongsImpl();
+		song_list = new LinkedList<SongCounterImpl>();
+	}
+	
+	
 	@Override
 	public int compareTo(UserProfileImpl other) {
 		return this.total_play_count - other.total_play_count;

@@ -2,10 +2,16 @@ package server;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 import HelloApp.HelloPOA;
 import HelloApp.SongCounterImpl;
@@ -26,14 +32,18 @@ public class HelloServant extends HelloPOA {
 	private HashMap<String, SongProfileImpl> song_cache = new HashMap<String, SongProfileImpl>(); 
 	private HashMap<String, UserProfileImpl> user_cache = new HashMap<String, UserProfileImpl>();
 	private HashMap<String, Integer> user_storage = new HashMap<String,Integer>();
-			
-	public void build_song_cache() {
+	
+	public void log(String input) {
 		Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         String now = sdf.format(cal.getTime());
-        System.out.println(now + ": Building the song_cache");
+        System.out.println(now + ": "+input);
+	}
+			
+	public void build_song_cache() {
 		
-        
+		log("building song cache");
+		
         try {
         	File f = new File("train_triplets_1.txt");
         	Scanner fileScanner = new Scanner(f);
@@ -66,31 +76,10 @@ public class HelloServant extends HelloPOA {
         		
         		else user_storage.put(split[1],played);
         		
-        		
-        		/*
-        		if(user_cache.containsKey(split[1])) {
-        			UserProfileImpl current = user_cache.get(split[1]);
-        			current.song_list.add(new SongCounterImpl(split[0], played));
-        			current.total_play_count += played;
-        			
-        			TopThreeSongsImpl topSongs = (TopThreeSongsImpl) current.top_three_songs;
-        			
-        			if(topSongs.insertable(played)) {
-        				topSongs.insert(new SongCounterImpl(split[0], played));
-        			}
-        		}
-        		
-        		else {
-        			UserProfileImpl user_profile = new UserProfileImpl(split[1]);
-        			user_profile.total_play_count += played;
-        			TopThreeSongsImpl topSongs = (TopThreeSongsImpl) user_profile.top_three_songs;
-        			SongCounterImpl songCounter = new SongCounterImpl(split[0], played);
-        			topSongs.insert(songCounter);
-        			user_profile.song_list.add(songCounter);
-        			user_cache.put(split[1], user_profile);
-        		} */
-        		
         	}
+        	
+        	
+        	
         	
         	fileScanner.close();
         	
@@ -139,13 +128,50 @@ public class HelloServant extends HelloPOA {
 			
 			SongProfileImpl sp = song_cache.get("SOMPBQG12AC3DF6169");
 			
+			log("Created song_cache, tallied users");
+        	
+    		class Node implements Comparable<Node>{
+    			String id;
+    			Integer val;
+    			public Node(String id, Integer val) {
+    				this.id = id;
+    				this.val = val;
+    			}
+    			public int compareTo(Node other) {
+    				return this.val-other.val;
+    			}
+				
+    		}
+        		
+        	LinkedList<Node> ls = new LinkedList<Node>();
+        	for(String s : user_storage.keySet()) {
+        		ls.add(new Node(s, user_storage.get(s)));        		
+        	}
+        	user_storage = null;
+        	Node[] arr = (Node[]) ls.toArray();
+        	
+        	log("Sorting users");
+        	
+        	Arrays.sort(arr,Collections.reverseOrder());
+        	
+        	log("Sorted users");
+        	
+        	
+        	
+        	for(int i = 0; i < 1000; i++) {
+        		UserProfileImpl temp = new UserProfileImpl(arr[i].id,arr[i].val);
+        		user_cache.put(temp.user_id,temp);
+        		if(i < 6) {
+        			System.out.println("user "+arr[i].id+", total play time: "+arr[i].val);
+        		}
+        	}
+        	
+        	
 			
 			//System.out.format("SOMPBQG12AC3DF6169: count_played %d topThreeUsers: %s\n", sp.total_play_count, sp.top_three_users);
 			//System.out.println("Actual count " + getTimesPlayed("SOMPBQG12AC3DF6169"));
 			
-			cal = Calendar.getInstance();
-			now = sdf.format(cal.getTime());
-	        System.out.println(now + ": Finished building the song_cache");
+			log("Done buidling cache");
 			
 			
         } catch (Exception e) {
